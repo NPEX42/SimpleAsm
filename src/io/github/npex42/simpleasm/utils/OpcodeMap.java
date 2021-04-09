@@ -2,7 +2,6 @@ package io.github.npex42.simpleasm.utils;
 
 import java.io.*;
 import java.util.*;
-import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -16,7 +15,6 @@ public class OpcodeMap {
         for(String line : config) {
 
             line = line.trim();
-            System.out.println(line);
             if(line.startsWith("%REPR")) {
                 String[] parts = line.split("\\s+");
 
