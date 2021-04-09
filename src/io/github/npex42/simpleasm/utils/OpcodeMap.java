@@ -9,6 +9,8 @@ import java.util.stream.Stream;
 public class OpcodeMap {
     public static final String SEPARATOR = ":";
     private final Map<String, Integer> map = new HashMap<>();
+
+    private int instructionSize = -1;
     public OpcodeMap(List<String> config) {
         int radix = 16;
         for(String line : config) {
@@ -23,6 +25,17 @@ public class OpcodeMap {
                     case "oct" -> radix = 8;
                     case "dec" -> radix = 10;
                     case "hex" -> radix = 16;
+                }
+                continue;
+            }
+
+
+            if(line.startsWith("%SIZE")) {
+                String[] parts = line.split("\\s+");
+
+                if(parts[1].toLowerCase().matches("var")) instructionSize = -1;
+                else {
+                    instructionSize = Integer.parseInt(parts[1]);
                 }
                 continue;
             }
@@ -62,6 +75,10 @@ public class OpcodeMap {
             }
         }
         throw new InvalidInstructionException();
+    }
+
+    public int getInstructionSize() {
+        return instructionSize;
     }
 
 

@@ -14,6 +14,8 @@ public class Main {
 
         OpcodeMap map = OpcodeMap.load(file);
 
+        System.out.println(map.getInstructionSize());
+
         System.out.println(map.getOpcode("LDA #$00"));
         System.out.println(map.getOpcode("LDA #00"));
         System.out.println(map.getOpcode("LDA $0000"));
