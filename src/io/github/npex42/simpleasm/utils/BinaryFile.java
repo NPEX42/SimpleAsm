@@ -7,6 +7,8 @@ import java.util.List;
 public class BinaryFile {
     private List<Integer> data = new ArrayList<>();
 
+    private OutputStream outputStream;
+
     public static BinaryFile Load(String path) throws RuntimeException {
         try {
             BinaryFile file = new BinaryFile();
@@ -57,8 +59,10 @@ public class BinaryFile {
 
     public void Save(String path) throws RuntimeException  {
         try {
-            new File(path).createNewFile();
-            DataOutputStream stream = new DataOutputStream(new FileOutputStream(path));
+            File f = new File(path);
+            f.createNewFile();
+            setOutputStream(f);
+            DataOutputStream stream = new DataOutputStream(outputStream);
             for(int i : data) {
                 stream.writeInt(i);
             }
@@ -70,10 +74,29 @@ public class BinaryFile {
 
     public void SaveBytes(String path) throws RuntimeException  {
         try {
-            new File(path).createNewFile();
-            DataOutputStream stream = new DataOutputStream(new FileOutputStream(path));
+            File f = new File(path);
+            f.createNewFile();
+            setOutputStream(f);
+            DataOutputStream stream = new DataOutputStream(outputStream);
             for(int i : data) {
                 if(i < 256) stream.writeByte(i);
+                if(i > 256 && i < 65536) stream.writeShort(i);
+                if(i > 65536 && i < 4294967296L) stream.writeInt(i);
+            }
+            stream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void SaveShorts(String path) throws RuntimeException  {
+        try {
+            File f = new File(path);
+            f.createNewFile();
+            setOutputStream(f);
+            DataOutputStream stream = new DataOutputStream(outputStream);
+            for(int i : data) {
+                if(i < 256) stream.writeShort(i);
                 if(i > 256 && i < 65536) stream.writeShort(i);
                 if(i > 65536 && i < 4294967296L) stream.writeInt(i);
             }
@@ -83,19 +106,15 @@ public class BinaryFile {
         }
     }
 
-    public void SaveShorts(String path) throws RuntimeException  {
-        try {
-            new File(path).createNewFile();
-            DataOutputStream stream = new DataOutputStream(new FileOutputStream(path));
-            for(int i : data) {
-                stream.writeShort(i);
-            }
-            stream.close();
-        } catch (IOException e) {
-            throw new RuntimeException();
-        }
+
+
+    public void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
     }
 
+    public void setOutputStream(File file) throws FileNotFoundException {
+        this.outputStream = new FileOutputStream(file);
+    }
 
     public List<Integer> getData() {
         return data;
