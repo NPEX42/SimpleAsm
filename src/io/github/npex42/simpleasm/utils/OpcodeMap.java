@@ -42,7 +42,7 @@ public class OpcodeMap {
             String[] parts = line.split(SEPARATOR);
             if(parts.length < 2) continue;
             String instructionRegex = parts[0];
-            int opcode = Integer.parseInt(parts[1], radix);
+            int opcode = Integer.parseInt(StringUtils.StripWhiteSpace(parts[1]), radix);
             map.put(instructionRegex, opcode);
         }
     }

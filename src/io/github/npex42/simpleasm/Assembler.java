@@ -3,6 +3,7 @@ package io.github.npex42.simpleasm;
 import io.github.npex42.simpleasm.utils.OpcodeMap;
 import io.github.npex42.simpleasm.utils.OperandParser;
 import io.github.npex42.simpleasm.utils.Preprocessor;
+import io.github.npex42.simpleasm.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,9 @@ public class Assembler {
     private OpcodeMap map;
     private List<Preprocessor> preprocessors = new ArrayList<>();
 
+    private boolean exportSymbols;
+    private String exportPath;
+
     public Assembler(OperandParser parser, OpcodeMap map) {
         this.parser = parser;
         this.map = map;
@@ -20,6 +24,9 @@ public class Assembler {
         preprocessors.add(this::Labels);
     }
 
+    public boolean add(Preprocessor preprocessor) {
+        return preprocessors.add(preprocessor);
+    }
 
     public List<String> preprocess(List<String> program) {
         for(Preprocessor p : preprocessors) {
@@ -32,8 +39,7 @@ public class Assembler {
         int offset = 0;
         for(String line : program) {
             if(line.matches("[A-z_-]+:")) {
-                int end = line.length() - 1;
-                parser.SetSymbol(line.substring(0, end), offset);
+                parser.SetSymbol(StringUtils.RemoveLast(line, 1), offset);
             } else {
                 offset += map.getInstructionSize();
             }
@@ -74,7 +80,16 @@ public class Assembler {
             lineNum++;
         }
 
+        if(exportSymbols) parser.ExportSymbols(exportPath);
+        if(bytes.size() % map.getInstructionSize() != 0) System.out.println("Potential Instruction Slip!");
         return bytes;
+    }
+
+    public void EnableSymbolExport(String path) {
+        exportSymbols = true;
+        exportPath = path;
+
+
     }
 
 

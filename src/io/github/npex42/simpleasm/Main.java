@@ -1,11 +1,9 @@
 package io.github.npex42.simpleasm;
 
-import io.github.npex42.simpleasm.utils.BinaryFile;
-import io.github.npex42.simpleasm.utils.OpcodeMap;
-import io.github.npex42.simpleasm.utils.OperandParser;
-import io.github.npex42.simpleasm.utils.TextFile;
+import io.github.npex42.simpleasm.utils.*;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,42 +11,51 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
+        ArgumentParser argParser = new ArgumentParser(args);
 
-        List<String> argList = Arrays.asList(args);
+        Class<OutputStream> clazz = argParser.getClass("-output-writer");
+        System.out.println(clazz);
 
+        if (!argParser.hasAllKeys("-i", "-o", "-map")) {
+            System.err.print(
+                    """
+                    Usage: asm -i=<input file> -o=<output file> -map=<mapper config> [flags] 
+                    """
+            );
+            System.exit(-1);
+        }
 
-
-        File file = new File("Instructions.cfg");
         OperandParser parser = new OperandParser();
 
-        for(String arg : argList) {
-            if(arg.matches("[A-z_-]+=[0-9]+")) {
-                String sym = arg.split("=")[0];
-                int val = Integer.parseInt(arg.split("=")[1]);
-
-                parser.SetSymbol(sym, val);
-            }
-        }
-        String inputPath = "";
-        if(argList.contains("-i")) inputPath = argList.get(argList.indexOf("-i") + 1);
-        String outputPath = "";
-        if(argList.contains("-o")) outputPath = argList.get(argList.indexOf("-o") + 1);
-
         String symPath = "";
-        if(argList.contains("--export-symbols")) symPath = argList.get(argList.indexOf("--export-symbols") + 1);
 
-        OpcodeMap map = OpcodeMap.load(file);
+        OpcodeMap map = OpcodeMap.load(argParser.getFile("-map"));
         List<Integer> bytes;
-        List<String> program = TextFile.Load("Test.asm").getContents();
+        List<String> program = TextFile.Load(argParser.getString("-i")).getContents();
+
+        if(argParser.containsKey("-multi")) {
+            
+        }
+
         Assembler asm = new Assembler(parser, map);
+
+        if(argParser.containsKey("-exp")) asm.EnableSymbolExport(argParser.getString("-exp"));
+
         program = asm.preprocess(program);
         bytes = asm.assemble(program);
-        if(argList.contains("--export-symbols")) parser.ExportSymbols(symPath);
 
         System.out.println(bytes);
         BinaryFile bin = new BinaryFile();
         bin.setData(bytes);
-        bin.SaveBytes(outputPath);
+
+          if(argParser.containsKey("-ob")) {
+            bin.SaveBytes(argParser.getString("-o"));
+        } else if(argParser.containsKey("-os")) {
+            bin.SaveShorts(argParser.getString("-o"));
+        } else {
+            bin.Save(argParser.getString("-o"));
+        }
+
 
     }
 }
