@@ -2,19 +2,19 @@ package io.github.npex42.simpleasm.utils;
 
 import java.io.*;
 import java.util.*;
-import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class OpcodeMap {
     public static final String SEPARATOR = ":";
     private final Map<String, Integer> map = new HashMap<>();
+
+    private int instructionSize = -1;
     public OpcodeMap(List<String> config) {
         int radix = 16;
         for(String line : config) {
 
             line = line.trim();
-            System.out.println(line);
             if(line.startsWith("%REPR")) {
                 String[] parts = line.split("\\s+");
 
@@ -23,6 +23,17 @@ public class OpcodeMap {
                     case "oct" -> radix = 8;
                     case "dec" -> radix = 10;
                     case "hex" -> radix = 16;
+                }
+                continue;
+            }
+
+
+            if(line.startsWith("%SIZE")) {
+                String[] parts = line.split("\\s+");
+
+                if(parts[1].toLowerCase().matches("var")) instructionSize = -1;
+                else {
+                    instructionSize = Integer.parseInt(parts[1]);
                 }
                 continue;
             }
@@ -62,6 +73,10 @@ public class OpcodeMap {
             }
         }
         throw new InvalidInstructionException();
+    }
+
+    public int getInstructionSize() {
+        return instructionSize;
     }
 
 

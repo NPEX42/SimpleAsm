@@ -1,45 +1,54 @@
 package io.github.npex42.simpleasm;
 
+import io.github.npex42.simpleasm.utils.BinaryFile;
 import io.github.npex42.simpleasm.utils.OpcodeMap;
+import io.github.npex42.simpleasm.utils.OperandParser;
+import io.github.npex42.simpleasm.utils.TextFile;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
-        File file = new File("Instructions.cfg");
 
+        List<String> argList = Arrays.asList(args);
+
+
+
+        File file = new File("Instructions.cfg");
+        OperandParser parser = new OperandParser();
+
+        for(String arg : argList) {
+            if(arg.matches("[A-z_-]+=[0-9]+")) {
+                String sym = arg.split("=")[0];
+                int val = Integer.parseInt(arg.split("=")[1]);
+
+                parser.SetSymbol(sym, val);
+            }
+        }
+        String inputPath = "";
+        if(argList.contains("-i")) inputPath = argList.get(argList.indexOf("-i") + 1);
+        String outputPath = "";
+        if(argList.contains("-o")) outputPath = argList.get(argList.indexOf("-o") + 1);
+
+        String symPath = "";
+        if(argList.contains("--export-symbols")) symPath = argList.get(argList.indexOf("--export-symbols") + 1);
 
         OpcodeMap map = OpcodeMap.load(file);
-
-        System.out.println(map.getOpcode("LDA #$00"));
-        System.out.println(map.getOpcode("LDA #00"));
-        System.out.println(map.getOpcode("LDA $0000"));
-        System.out.println(map.getOpcode("LDA $0000,X"));
-        System.out.println(map.getOpcode("LDA $0000,Y"));
-
-        System.out.println(map.getOpcode("ADD #10"));
-        System.out.println(map.getOpcode("SUB #10"));
-
-
-        List<Integer> bytes = new ArrayList<>();
-        List<String> program = new ArrayList<>();
-
-        program.add("LDA #$FF");
-        program.add("ADD #10");
-        int lineNum = 1;
-        for(String line : program) {
-            try {
-                bytes.add(map.getOpcode(line));
-            } catch (OpcodeMap.InvalidInstructionException ex) {
-                System.err.printf("[Line %d]: Unknown Instruction '%s'%n", lineNum, line);
-                break;
-            }
-            lineNum++;
-        }
+        List<Integer> bytes;
+        List<String> program = TextFile.Load("Test.asm").getContents();
+        Assembler asm = new Assembler(parser, map);
+        program = asm.preprocess(program);
+        bytes = asm.assemble(program);
+        if(argList.contains("--export-symbols")) parser.ExportSymbols(symPath);
 
         System.out.println(bytes);
+        BinaryFile bin = new BinaryFile();
+        bin.setData(bytes);
+        bin.SaveBytes(outputPath);
+
     }
 }
