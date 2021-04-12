@@ -1,5 +1,7 @@
 package io.github.npex42.simpleasm;
 
+import io.github.npex42.simpleasm.api.Assembler;
+import io.github.npex42.simpleasm.api.Linker;
 import io.github.npex42.simpleasm.utils.*;
 
 import java.util.List;
@@ -30,36 +32,45 @@ public class Main {
 
         }
 
-        Assembler asm = new Assembler(parser, map);
+        Assembler asm = new AssemblerImpl(parser, map);
+        Linker linker = new LinkerImpl();
 
         if(argParser.containsKey("-exp")) asm.EnableSymbolExport(argParser.getString("-exp"));
         long tp1, tp2;
         tp1 = System.currentTimeMillis();
         program = asm.preprocess(program);
+        System.out.printf("Preprocessing '%s'...%n", argParser.getString("-i"));
         tp2 = System.currentTimeMillis();
-        System.out.printf("[ASM] Preprocessed %d lines in %2.2f seconds%n", program.size(), ((tp2 - tp1) / 1000f));
+        if(argParser.containsKey("--verbose"))
+            System.out.printf("[ASM] Preprocessed %d lines in %2.2f seconds%n", program.size(), ((tp2 - tp1) / 1000f));
+        System.out.printf("Assembling '%s'...%n", argParser.getString("-i"));
         tp1 = System.currentTimeMillis();
-        bytes = asm.assemble(program);
+        List<Section> sections = asm.assemble(program);
         tp2 = System.currentTimeMillis();
-        System.out.printf("[ASM] Assembled %d lines in %2.2f seconds%n", program.size(), ((tp2 - tp1) / 1000f));
+        if(argParser.containsKey("--verbose"))
+            System.out.printf("[ASM] Assembled %d lines in %2.2f seconds%n", program.size(), ((tp2 - tp1) / 1000f));
 
         //System.out.println(bytes);
-        BinaryFile bin = new BinaryFile();
-        bin.setData(bytes);
+        System.out.printf("Linking '%s'...%n", argParser.getString("-o"));
+        BinaryFile bin = linker.link(sections);
 
         tp1 = System.currentTimeMillis();
           if(argParser.containsKey("-ob")) {
             bin.SaveBytes(argParser.getString("-o"));
-            System.out.println("Written Using BE8");
+            if(argParser.containsKey("--verbose"))
+                System.out.println("Written Using BE8");
         } else if(argParser.containsKey("-os")) {
             bin.SaveShorts(argParser.getString("-o"));
-              System.out.println("Written Using BE16");
+            if(argParser.containsKey("--verbose"))
+                System.out.println("Written Using BE16");
         } else {
             bin.Save(argParser.getString("-o"));
-              System.out.println("Written Using BE32");
+            if(argParser.containsKey("--verbose"))
+                System.out.println("Written Using BE32");
         }
         tp2 = System.currentTimeMillis();
-        System.out.printf("[ASM] Wrote %,d Words in %2.2f seconds%n", bytes.size(), ((tp2 - tp1) / 1000f));
+        if(argParser.containsKey("--verbose"))
+            System.out.printf("[ASM] Wrote %,d Words in %2.2f seconds%n", bin.getData().size(), ((tp2 - tp1) / 1000f));
 
     }
 }
