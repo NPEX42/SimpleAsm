@@ -16,6 +16,18 @@ public class Section {
         length = _length;
     }
 
+    public Section Add(Section other) {
+        List<Integer> thisData, otherData;
+        thisData = data;
+        otherData = other.data;
+
+        for(int i = other.start; i - other.start < other.length; i++) {
+            thisData.add(otherData.get(i));
+        }
+
+        return new Section(this.start, this.length + other.length, thisData);
+    }
+
     public List<Integer> getData() {
         return data;
     }
