@@ -18,7 +18,6 @@ public class OperandParser {
         }
         TextFile file = new TextFile();
         file.setContents(output);
-        System.out.println(file);
         file.Save(path);
     }
 

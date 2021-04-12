@@ -1,1 +1,4 @@
 *.class
+/Test.bin
+**.xml
+**.properties
