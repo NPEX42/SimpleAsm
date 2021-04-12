@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("ALL")
 public class OperandParser {
     private final HashMap<String, Integer> symbols = new HashMap<>();
 

@@ -8,10 +8,11 @@ import io.github.npex42.simpleasm.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("ALL")
 public class Assembler {
-    private OperandParser parser;
-    private OpcodeMap map;
-    private List<Preprocessor> preprocessors = new ArrayList<>();
+    private final OperandParser parser;
+    private final OpcodeMap map;
+    private final List<Preprocessor> preprocessors = new ArrayList<>();
 
     private boolean exportSymbols;
     private String exportPath;

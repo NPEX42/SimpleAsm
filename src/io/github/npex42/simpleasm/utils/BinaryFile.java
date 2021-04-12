@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("ALL")
 public class BinaryFile {
     private List<Integer> data = new ArrayList<>();
 
@@ -81,7 +82,7 @@ public class BinaryFile {
             for(int i : data) {
                 if(i < 256) stream.writeByte(i);
                 if(i > 256 && i < 65536) stream.writeShort(i);
-                if(i > 65536 && i < 4294967296L) stream.writeInt(i);
+                if(i > 65536) stream.writeInt(i);
             }
             stream.close();
         } catch (IOException e) {
@@ -98,7 +99,7 @@ public class BinaryFile {
             for(int i : data) {
                 if(i < 256) stream.writeShort(i);
                 if(i > 256 && i < 65536) stream.writeShort(i);
-                if(i > 65536 && i < 4294967296L) stream.writeInt(i);
+                if(i > 65536) stream.writeInt(i);
             }
             stream.close();
         } catch (IOException e) {

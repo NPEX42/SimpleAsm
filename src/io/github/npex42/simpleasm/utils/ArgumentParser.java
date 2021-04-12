@@ -4,8 +4,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("ALL")
 public class ArgumentParser {
-    private Map<String, String> map = new HashMap<>();
+    private final Map<String, String> map = new HashMap<>();
 
     public ArgumentParser(String[] args) {
         for(String arg : args) {
@@ -30,8 +31,10 @@ public class ArgumentParser {
         return new File(getString(key));
     }
 
+    @SuppressWarnings("unchecked")
     public <T> Class<T> getClass(String key) {
         try {
+
             return (Class<T>) getClass().getClassLoader().loadClass(getString(key));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);

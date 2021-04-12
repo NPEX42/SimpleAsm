@@ -45,10 +45,11 @@ public class TextFile {
 
     @Override
     public String toString() {
-        String output = "TextFile {\n";
+        StringBuilder outputBuilder = new StringBuilder("TextFile {\n");
         for(String line : getContents()) {
-            output += '\t' + line + "\n";
+            outputBuilder.append('\t').append(line).append("\n");
         }
+        String output = outputBuilder.toString();
         output += "};";
         return output;
     }

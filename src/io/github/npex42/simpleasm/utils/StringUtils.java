@@ -2,15 +2,16 @@ package io.github.npex42.simpleasm.utils;
 
 import java.util.regex.Pattern;
 
+@SuppressWarnings("ALL")
 public class StringUtils {
     public static String StripWhiteSpace(String input) {
-        String output = "";
+        StringBuilder output = new StringBuilder();
         for(char c : input.toCharArray()) {
             if(!(""+c).matches("\\s")) {
-                output += c;
+                output.append(c);
             }
         }
-        return output;
+        return output.toString();
     }
 
     public static String RemoveLast(String text, int count) {
@@ -19,8 +20,8 @@ public class StringUtils {
 
     public static String SafeReplacement(String source, String oldStr, String newStr) {
         String safeSource = Pattern.quote(source);
-        String safeOldStr = Pattern.quote(source);
-        String safeNewStr = Pattern.quote(source);
+        String safeOldStr = Pattern.quote(oldStr);
+        String safeNewStr = Pattern.quote(newStr);
 
         return safeSource.replaceAll(safeOldStr, safeNewStr);
     }
