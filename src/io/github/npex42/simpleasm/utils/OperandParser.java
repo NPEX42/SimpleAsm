@@ -1,6 +1,8 @@
 package io.github.npex42.simpleasm.utils;
 
 
+import io.github.npex42.simpleasm.Main;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +20,7 @@ public class OperandParser {
         }
         TextFile file = new TextFile();
         file.setContents(output);
+        if(Main.argParser.containsKey("--verbose")) System.out.println(file);
         file.Save(path);
     }
 

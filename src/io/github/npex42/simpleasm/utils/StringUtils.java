@@ -18,6 +18,10 @@ public class StringUtils {
         return text.substring(0, text.length() - count);
     }
 
+    public static String StripSurrounding(String text, int index) {
+        return text.substring(index , text.length() - index);
+    }
+
     public static String SafeReplacement(String source, String oldStr, String newStr) {
         String safeSource = Pattern.quote(source);
         String safeOldStr = Pattern.quote(oldStr);

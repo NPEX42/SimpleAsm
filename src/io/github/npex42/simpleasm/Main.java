@@ -8,10 +8,10 @@ import java.util.List;
 
 @SuppressWarnings("ALL")
 public class Main {
-
+    public static ArgumentParser argParser;
     public static void main(String[] args) {
-        ArgumentParser argParser = new ArgumentParser(args);
-
+        argParser = new ArgumentParser(args);
+        System.out.println(StringUtils.StripSurrounding("{0;3}", 1));
         if (!argParser.hasAllKeys("-i", "-o", "-map")) {
             System.err.print(
                     """
@@ -27,6 +27,7 @@ public class Main {
         OpcodeMap map = OpcodeMap.load(argParser.getFile("-map"));
         List<Integer> bytes;
         List<String> program = TextFile.Load(argParser.getString("-i")).getContents();
+
 
         if(argParser.containsKey("-multi")) {
 

@@ -95,17 +95,31 @@ public class AssemblerImpl implements Assembler {
 
 
             try {
-                bytes.add(opcodeMap.getOpcode(line));
-                String operands = line.split("\\s+")[1];
-                if(opcodeMap.getInstructionSize() > -1) {
-                    bytes.addAll(operandParser.parseOperands(operands, opcodeMap.getInstructionSize()));
-                } else {
-                    bytes.addAll(operandParser.parseOperands(operands));
+                bytes.addAll(opcodeMap.getOpcode(line));
+                String operandFormat = opcodeMap.getInstruction(line).outputFormat;
+                String[] operands = line.split("\\s")[1].split(",");
+
+                for(String item : operandFormat.split("\\|")) {
+                    if(item.matches("\\{[0-9]+;[1-9]?\\}")) {
+                        String raw = StringUtils.StripSurrounding(item,1);
+                        String[] parts = raw.split(";");
+                        int index = Integer.parseInt(parts[0]);
+                        int bits = 8;
+                        if(parts.length > 1) {
+                            bits = Integer.parseInt(parts[1]);
+                        }
+
+                        int value = operandParser.parseInt(operands[index]);
+                        value %=  Math.ceil(Math.pow(2, bits));
+                        bytes.add(value);
+                    } else {
+                        bytes.add(operandParser.parseInt("%"+item));
+                    }
                 }
 
             } catch (OpcodeMap.InvalidInstructionException ex) {
                 System.err.printf("[Line %d]: Unknown Instruction '%s'%n", lineNum, line);
-                break;
+                continue;
             }
             lineNum++;
             sectionEnd += opcodeMap.getInstructionSize();

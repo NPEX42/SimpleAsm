@@ -1,9 +1,14 @@
-.ORG 0011
+.ORG 0
 loop:
     LDA &loop
+    LDA &loop
+    LDA &loop
+    LDA &loop
+    LDA &loop
 
+    LDA &kok
+.END
 
-.ORG FFFC
-btye:
-.DB TEST_BYTE 999
-.END ffff
+.ORG FF
+kok:
+.END 100

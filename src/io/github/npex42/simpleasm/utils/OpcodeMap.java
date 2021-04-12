@@ -7,7 +7,15 @@ import java.util.stream.Stream;
 
 public class OpcodeMap {
     public static final String SEPARATOR = ":";
-    private final Map<String, Integer> map = new HashMap<>();
+    private int representationMode = REPR_BIN;
+    private final Map<String, Instruction> map = new HashMap<>();
+    private final Map<String, Integer> symbols = new HashMap<>();
+
+    public static final int REPR_BIN = 0;
+
+    public int getRepresentationMode() {
+        return representationMode;
+    }
 
     private int instructionSize = -1;
     public OpcodeMap(List<String> config) {
@@ -38,12 +46,32 @@ public class OpcodeMap {
                 continue;
             }
 
+            if(line.startsWith("%SYM")) {
+                String symbol = line.split("\\s+")[1];
+                int value = Integer.parseInt(line.split("\\s+")[2], 2);
+
+                symbols.put(symbol, value);
+
+                continue;
+            }
+
             if(line.startsWith("//")) continue;
             String[] parts = line.split(SEPARATOR);
             if(parts.length < 2) continue;
             String instructionRegex = parts[0];
-            int opcode = Integer.parseInt(StringUtils.StripWhiteSpace(parts[1]), radix);
-            map.put(instructionRegex, opcode);
+            Instruction instruction = new Instruction(instructionRegex, parts[1]);
+            for(String section : instruction.outputFormat.split("\\|")) {
+
+                try {
+                    int opcode = Integer.parseInt(StringUtils.StripWhiteSpace(section), radix);
+                    instruction.operands.add(opcode);
+                } catch (NumberFormatException nfex) {
+                    String symbolPattern = section;
+                    instruction.symbolPatterns.add(symbolPattern);
+                }
+
+            }
+            map.put(instructionRegex, instruction);
         }
     }
 
@@ -61,18 +89,32 @@ public class OpcodeMap {
         try {
             return buildFrom(new FileInputStream(file));
         } catch (Exception ioex) {
-            throw new OpcodeMapReadException();
+            throw new OpcodeMapReadException(ioex);
         }
     }
 
-    public int getOpcode(String instruction)
+    public List<Integer> getOpcode(String instruction)
     throws InvalidInstructionException {
         for(String key : map.keySet()) {
             if(Pattern.matches(key, instruction)) {
-                return map.get(key);
+                return map.get(key).operands;
             }
         }
         throw new InvalidInstructionException();
+    }
+
+    public Instruction getInstruction(String instruction)
+    throws InvalidInstructionException {
+            for(String key : map.keySet()) {
+                if(Pattern.matches(key, instruction)) {
+                    return map.get(key);
+                }
+            }
+            throw new InvalidInstructionException();
+        }
+
+    public int getSymbol(String symbol) {
+        return symbols.get(symbol);
     }
 
     public int getInstructionSize() {
@@ -80,6 +122,6 @@ public class OpcodeMap {
     }
 
 
-    public static class InvalidInstructionException extends RuntimeException {}
-    public static class OpcodeMapReadException extends RuntimeException {}
+    public static class InvalidInstructionException extends RuntimeException { InvalidInstructionException() {} InvalidInstructionException(Throwable t) {super(t);} }
+    public static class OpcodeMapReadException extends RuntimeException { OpcodeMapReadException(Throwable t) {super(t);} }
 }
