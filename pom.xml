@@ -6,11 +6,19 @@
 
     <groupId>io.github.npex42</groupId>
     <artifactId>SimpleAsm</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 
     <properties>
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Npex42 Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/Npex42/SimpleAsm</url>
+        </repository>
+    </distributionManagement>
     
 </project>
